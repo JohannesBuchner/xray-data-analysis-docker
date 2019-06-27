@@ -1,7 +1,11 @@
 set -euxo pipefail
 
+CIAO_VERSION=$1
+if [[ "$CIAO_VERSION" == "" ]]; then
 CIAO_VERSION=$(wget -q -O - 'http://cxc.cfa.harvard.edu/ciao/download/' |grep '<title'|sed 's,.*CIAO \([0-9.]*\)</title>,\1,g')
+fi
 CIAO_VERSION_NODOT=${CIAO_VERSION/\./}
+
 mkdir -p ciao-${CIAO_VERSION}
 
 {
@@ -32,22 +36,21 @@ WORKDIR /opt/
 
 RUN mkdir -p ciao-download ciao
 WORKDIR /opt/ciao-download/
+
+COPY CIAOINSTALLRC /root/.ciaoinstall.rc
 EOF
 
 echo "RUN wget http://cxc.cfa.harvard.edu/cgi-gen/ciao/ciao${CIAO_VERSION_NODOT}_install.cgi?standard=true -O ciao-install"
 
 cat << EOF
-RUN { \
-	echo; \
-	echo /opt/ciao/; \
-	echo n; \
-	yes ""; \
-	} | bash ./ciao-install
+RUN yes "" | bash ./ciao-install
 
 #alias ciao "source /opt/ciao/bin/ciao.csh"
 #CMD source /opt/ciao/bin/ciao.csh
 EOF
 } > ciao-${CIAO_VERSION}/Dockerfile
+
+cp ../CIAOINSTALLRC .
 
 docker build ciao-${CIAO_VERSION} 
 

@@ -1,6 +1,10 @@
 set -euxo pipefail
 
+
+HEASOFT_VERSION=$1
+if [[ "$HEASOFT_VERSION" == "" ]]; then
 HEASOFT_VERSION=$(wget -q -O - 'https://heasarc.gsfc.nasa.gov/lheasoft/download.html' |grep '<title'|sed 's,.*(Version \([^\)]*\)).*,\1,g')
+fi
 
 mkdir -p heasoft-${HEASOFT_VERSION}
 pushd heasoft-${HEASOFT_VERSION}
